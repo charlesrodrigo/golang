@@ -16,6 +16,7 @@ func NewPersonServiceImpl(personRepository repository.PersonRepository) PersonSe
 }
 
 // Create implements PersonService
-func (p *PersonServiceImpl) Create(person *model.Person) {
+func (p *PersonServiceImpl) Create(person model.Person) {
+
 	p.PersonRepository.Save(person)
 }

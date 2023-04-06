@@ -15,7 +15,7 @@ type Person struct {
 	Address Address
 }
 
-func NewPerson() *Person {
+func NewPerson() Person {
 
 	address := Address{
 		Zipcode:      "29166225",
@@ -31,15 +31,15 @@ func NewPerson() *Person {
 		Address: address,
 	}
 
-	return &person
+	return person
 }
 
-func (person *Person) MarshalBSON() ([]byte, error) {
+func (person Person) MarshalBSON() ([]byte, error) {
 	if person.Audit.CreatedAt.IsZero() {
 		person.Audit.CreatedAt = time.Now()
 	}
 	person.Audit.UpdatedAt = time.Now()
 
 	type my Person
-	return bson.Marshal((*my)(person))
+	return bson.Marshal((my)(person))
 }
