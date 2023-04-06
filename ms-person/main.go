@@ -11,8 +11,6 @@ import (
 
 func main() {
 
-	person := model.NewPerson()
-
 	fmt.Println("Started Server!")
 
 	db := config.DatabaseConnection()
@@ -20,5 +18,18 @@ func main() {
 	personRepository := database.NewPersonRepositoryImpl(db)
 	personService := service.NewPersonServiceImpl(personRepository)
 
-	personService.Create(person)
+	//personService.Delete("642f480985f5026dcd885a71")
+
+	person := model.NewPerson()
+	personService.Create(&person)
+
+	//person := personService.FindById("642f4a4570be0f6708715342")
+	//fmt.Println("person", person)
+
+	//person.Name = "alterando nome"
+
+	//personService.Update(&person)
+
+	//fmt.Println("person", person)
+
 }

@@ -16,7 +16,26 @@ func NewPersonServiceImpl(personRepository repository.PersonRepository) PersonSe
 }
 
 // Create implements PersonService
-func (p *PersonServiceImpl) Create(person model.Person) {
+func (p *PersonServiceImpl) Create(person *model.Person) {
+	p.PersonRepository.Create(person)
+}
 
-	p.PersonRepository.Save(person)
+// Update implements PersonService
+func (p *PersonServiceImpl) Update(person *model.Person) {
+	p.PersonRepository.Update(person)
+}
+
+// Delete implements PersonService
+func (p *PersonServiceImpl) Delete(id string) error {
+	return p.PersonRepository.Delete(id)
+}
+
+// FindById implements PersonService
+func (p *PersonServiceImpl) FindById(id string) model.Person {
+	return p.PersonRepository.FindById(id)
+}
+
+// FindAll implements PersonService
+func (p *PersonServiceImpl) FindAll() []model.Person {
+	return p.PersonRepository.FindAll()
 }

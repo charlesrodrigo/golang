@@ -23,10 +23,10 @@ func NewPersonRepositoryImpl(Db *mongo.Database) repository.PersonRepository {
 	return &PersonRepositoryImpl{Db: Db, Collection: collection}
 }
 
-// Save implements PersonRepository
-func (repo *PersonRepositoryImpl) Save(person model.Person) {
+// Save implements Person
+func (repo *PersonRepositoryImpl) Create(person *model.Person) {
 
-	result, err := repo.Collection.InsertOne(context.TODO(), &person)
+	result, err := repo.Collection.InsertOne(context.TODO(), person)
 
 	if err != nil {
 		helper.ErrorPanic(err)
@@ -34,12 +34,14 @@ func (repo *PersonRepositoryImpl) Save(person model.Person) {
 
 	fmt.Println("Inserted a single document: ", result.InsertedID.(primitive.ObjectID).Hex())
 
+	id := result.InsertedID.(primitive.ObjectID).Hex()
+
+	*person = repo.FindById(id)
+
 }
 
-// Update implements PersonRepository
-func (repo *PersonRepositoryImpl) Update(person model.Person) {
-
-	person.Name = "update"
+// Update implements Person
+func (repo *PersonRepositoryImpl) Update(person *model.Person) {
 
 	filter := bson.M{"_id": person.ID}
 	update := bson.M{"$set": person}
@@ -54,6 +56,7 @@ func (repo *PersonRepositoryImpl) Update(person model.Person) {
 
 }
 
+// Delete implements Person
 func (repo *PersonRepositoryImpl) Delete(id string) error {
 	objectId, err := primitive.ObjectIDFromHex(id)
 
@@ -67,9 +70,12 @@ func (repo *PersonRepositoryImpl) Delete(id string) error {
 		return fmt.Errorf("cannot delete user: %w", err)
 	}
 
+	fmt.Println("deleted a single document: ", id)
+
 	return nil
 }
 
+// FindById implements Person
 func (repo *PersonRepositoryImpl) FindById(id string) model.Person {
 
 	person := model.Person{}
@@ -89,6 +95,7 @@ func (repo *PersonRepositoryImpl) FindById(id string) model.Person {
 	return person
 }
 
+// FindAll implements Person
 func (repo *PersonRepositoryImpl) FindAll() []model.Person {
 	return repo.Find(&ListPersonParams{})
 }
