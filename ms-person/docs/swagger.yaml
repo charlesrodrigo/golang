@@ -1,0 +1,60 @@
+definitions:
+  controllers.Address:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      neighborhood:
+        type: string
+      state:
+        type: string
+      street:
+        type: string
+      zipcode:
+        type: string
+    required:
+    - city
+    - country
+    - neighborhood
+    - state
+    - street
+    - zipcode
+    type: object
+  controllers.CreatePersonRequest:
+    properties:
+      address:
+        $ref: '#/definitions/controllers.Address'
+      email:
+        type: string
+      name:
+        type: string
+    required:
+    - address
+    - email
+    - name
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/person:
+    post:
+      consumes:
+      - application/json
+      description: create person
+      parameters:
+      - description: Person Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreatePersonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: create person
+      tags:
+      - person
+swagger: "2.0"
