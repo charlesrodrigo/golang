@@ -13,7 +13,7 @@ type Address struct {
 
 type CreatePersonRequest struct {
 	Name    string  `json:"name" binding:"required"`
-	Email   string  `json:"email" binding:"required"`
+	Email   string  `json:"email" binding:"email,required"`
 	Address Address `json:"address" binding:"required"`
 }
 

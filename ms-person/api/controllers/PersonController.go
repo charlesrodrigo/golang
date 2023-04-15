@@ -30,10 +30,10 @@ func NewPersonController(personService service.PersonService) PersonController {
 // @Produce json
 // @Success 200
 // @Router /api/v1/person [post]
-func (personController PersonController) CreatePerson(c *gin.Context) {
+func (personController PersonController) CreatePerson(context *gin.Context) {
 	var createPersonRequest dto.CreatePersonRequest
-	if err := c.ShouldBindJSON(&createPersonRequest); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := context.ShouldBindJSON(&createPersonRequest); err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -41,7 +41,7 @@ func (personController PersonController) CreatePerson(c *gin.Context) {
 
 	personController.PersonService.Create(&person)
 
-	c.JSON(http.StatusOK, "")
+	context.JSON(http.StatusOK, "")
 }
 
 // @BasePath /api/v1
