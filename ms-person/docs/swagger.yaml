@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   controllers.Address:
     properties:
@@ -34,10 +35,46 @@ definitions:
     - email
     - name
     type: object
+  controllers.GetPersonRequest:
+    properties:
+      address:
+        $ref: '#/definitions/controllers.Address'
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: http://localhost:8080/swagger/index.html
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: charlesrodrigo@gmail.com
+    name: Charles Rodrigo
+  description: This is a crud of person.
+  title: Crud Person API
+  version: "1.0"
 paths:
   /api/v1/person:
+    get:
+      consumes:
+      - application/json
+      description: get all person
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.GetPersonRequest'
+            type: array
+      summary: get all person
+      tags:
+      - person
     post:
       consumes:
       - application/json
@@ -45,7 +82,7 @@ paths:
       parameters:
       - description: Person Data
         in: body
-        name: user
+        name: person
         required: true
         schema:
           $ref: '#/definitions/controllers.CreatePersonRequest'
@@ -55,6 +92,71 @@ paths:
         "200":
           description: OK
       summary: create person
+      tags:
+      - person
+  /api/v1/person/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete person
+      parameters:
+      - description: id person
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: delete person
+      tags:
+      - person
+    get:
+      consumes:
+      - application/json
+      description: get person
+      parameters:
+      - description: id person
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.GetPersonRequest'
+      summary: get person
+      tags:
+      - person
+    put:
+      consumes:
+      - application/json
+      description: update person
+      parameters:
+      - description: id person
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Person Data
+        in: body
+        name: person
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.CreatePersonRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.CreatePersonRequest'
+      summary: update person
       tags:
       - person
 swagger: "2.0"

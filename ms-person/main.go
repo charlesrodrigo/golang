@@ -13,9 +13,19 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func main() {
+// @title           Crud Person API
+// @version         1.0
+// @description     This is a crud of person.
 
-	fmt.Println("Started Server!")
+// @contact.name   Charles Rodrigo
+// @contact.email  charlesrodrigo@gmail.com
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          http://localhost:8080/swagger/index.html
+func main() {
 
 	db := config.DatabaseConnection()
 
@@ -34,10 +44,16 @@ func main() {
 			personGroup.POST("/", personController.CreatePerson)
 			personGroup.PUT("/:id", personController.UpdatePerson)
 			personGroup.GET("/:id", personController.GetPerson)
+			personGroup.GET("/", personController.GetAllPerson)
+			personGroup.DELETE("/:id", personController.DeletePerson)
 		}
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+
+	fmt.Println("Started Server! -> http://localhost:8080")
+	fmt.Println("Swagger! -> http://localhost:8080/swagger/index.html")
+
 	router.Run(":8080")
 
 	//personService.Delete("642f480985f5026dcd885a71")

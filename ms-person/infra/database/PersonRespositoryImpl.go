@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"br.com.charlesrodrigo/ms-person/helper"
 	"br.com.charlesrodrigo/ms-person/infra/repository"
@@ -16,23 +17,25 @@ import (
 type PersonRepositoryImpl struct {
 	Db         *mongo.Database
 	Collection *mongo.Collection
+	context    context.Context
 }
 
 func NewPersonRepositoryImpl(Db *mongo.Database) repository.PersonRepository {
 	collection := Db.Collection("person")
-	return &PersonRepositoryImpl{Db: Db, Collection: collection}
+
+	return &PersonRepositoryImpl{Db: Db, Collection: collection, context: context.Background()}
 }
 
 // Save implements Person
 func (repo *PersonRepositoryImpl) Create(person *model.Person) {
 
-	result, err := repo.Collection.InsertOne(context.TODO(), person)
+	result, err := repo.Collection.InsertOne(repo.context, person)
 
 	if err != nil {
 		helper.ErrorPanic(err)
 	}
 
-	fmt.Println("Inserted a single document: ", result.InsertedID.(primitive.ObjectID).Hex())
+	log.Println("Inserted a single document: ", result.InsertedID.(primitive.ObjectID).Hex())
 
 	id := result.InsertedID.(primitive.ObjectID).Hex()
 
@@ -46,13 +49,13 @@ func (repo *PersonRepositoryImpl) Update(person *model.Person) {
 	filter := bson.M{"_id": person.ID}
 	update := bson.M{"$set": person}
 
-	result, err := repo.Collection.UpdateOne(context.TODO(), filter, update)
+	result, err := repo.Collection.UpdateOne(repo.context, filter, update)
 
 	if err != nil {
 		helper.ErrorPanic(err)
 	}
 
-	fmt.Println("update a single document: ", person.Name, result.UpsertedID)
+	log.Println("update a single document: ", result.UpsertedID)
 
 }
 
@@ -64,7 +67,7 @@ func (repo *PersonRepositoryImpl) Delete(id string) error {
 		return fmt.Errorf("cannot delete user: %w", err)
 	}
 
-	_, err = repo.Collection.DeleteOne(context.TODO(), bson.M{"_id": objectId})
+	_, err = repo.Collection.DeleteOne(repo.context, bson.M{"_id": objectId})
 
 	if err != nil {
 		return fmt.Errorf("cannot delete user: %w", err)
@@ -86,7 +89,7 @@ func (repo *PersonRepositoryImpl) FindById(id string) model.Person {
 		helper.ErrorPanic(err)
 	}
 
-	err = repo.Collection.FindOne(context.TODO(), bson.M{"_id": objectId}).Decode(&person)
+	err = repo.Collection.FindOne(repo.context, bson.M{"_id": objectId}).Decode(&person)
 
 	if err != nil {
 		return model.Person{}
@@ -104,17 +107,17 @@ func (repo *PersonRepositoryImpl) Find(params *ListPersonParams) []model.Person 
 	opts := options.Find()
 	opts = withListPersonParams(opts, params)
 
-	cur, err := repo.Collection.Find(context.TODO(), bson.M{}, opts)
+	cur, err := repo.Collection.Find(repo.context, bson.M{}, opts)
 
 	if err != nil {
 		return []model.Person{}
 	}
 
-	defer cur.Close(context.TODO())
+	defer cur.Close(repo.context)
 
 	res := make([]model.Person, 0)
 
-	for cur.Next(context.TODO()) {
+	for cur.Next(repo.context) {
 		person := model.Person{}
 
 		err = cur.Decode(&person)
