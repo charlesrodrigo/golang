@@ -1,8 +1,8 @@
 package service
 
 import (
-	"br.com.charlesrodrigo/ms-person/infra/repository"
-	"br.com.charlesrodrigo/ms-person/model"
+	"br.com.charlesrodrigo/ms-person/internal/model"
+	"br.com.charlesrodrigo/ms-person/internal/repository"
 )
 
 type PersonServiceImpl struct {

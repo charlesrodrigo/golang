@@ -6,8 +6,8 @@ import (
 	"log"
 
 	"br.com.charlesrodrigo/ms-person/helper"
-	"br.com.charlesrodrigo/ms-person/infra/repository"
-	"br.com.charlesrodrigo/ms-person/model"
+	"br.com.charlesrodrigo/ms-person/internal/model"
+	"br.com.charlesrodrigo/ms-person/internal/repository"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"

@@ -1,8 +1,8 @@
-package repository
+package service
 
-import "br.com.charlesrodrigo/ms-person/model"
+import "br.com.charlesrodrigo/ms-person/internal/model"
 
-type PersonRepository interface {
+type PersonService interface {
 	Create(person *model.Person)
 	Update(person *model.Person)
 	Delete(id string) error

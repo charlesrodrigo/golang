@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"br.com.charlesrodrigo/ms-person/api/controllers/dto"
-	"br.com.charlesrodrigo/ms-person/model"
-	"br.com.charlesrodrigo/ms-person/service"
+	"br.com.charlesrodrigo/ms-person/api/dto"
+	"br.com.charlesrodrigo/ms-person/internal/model"
+	"br.com.charlesrodrigo/ms-person/internal/service"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
@@ -26,7 +26,7 @@ func NewPersonController(personService service.PersonService) PersonController {
 // @Description create person
 // @Tags person
 // @Accept json
-// @Param person body controllers.CreatePersonRequest true "Person Data"
+// @Param person body dto.CreatePersonRequest true "Person Data"
 // @Produce json
 // @Success 200
 // @Router /api/v1/person [post]
@@ -52,9 +52,9 @@ func (personController PersonController) CreatePerson(c *gin.Context) {
 // @Tags person
 // @Accept json
 // @Param id path string true "id person"
-// @Param person body controllers.CreatePersonRequest true "Person Data"
+// @Param person body dto.CreatePersonRequest true "Person Data"
 // @Produce json
-// @Success      200  {object}  controllers.CreatePersonRequest
+// @Success      200  {object}  dto.CreatePersonRequest
 // @Router /api/v1/person/{id} [put]
 func (personController PersonController) UpdatePerson(context *gin.Context) {
 	var updatePersonRequest dto.CreatePersonRequest
@@ -89,7 +89,7 @@ func (personController PersonController) UpdatePerson(context *gin.Context) {
 // @Accept json
 // @Param id path string true "id person"
 // @Produce json
-// @Success      200  {object}  controllers.GetPersonRequest
+// @Success      200  {object}  dto.GetPersonRequest
 // @Router /api/v1/person/{id} [get]
 func (personController PersonController) GetPerson(context *gin.Context) {
 
@@ -116,7 +116,7 @@ func (personController PersonController) GetPerson(context *gin.Context) {
 // @Tags person
 // @Accept json
 // @Produce json
-// @Success      200  {object}  []controllers.GetPersonRequest
+// @Success      200  {object}  []dto.GetPersonRequest
 // @Router /api/v1/person [get]
 func (personController PersonController) GetAllPerson(context *gin.Context) {
 

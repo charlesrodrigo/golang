@@ -10,10 +10,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "Charles Rodrigo",
-            "email": "charlesrodrigo@gmail.com"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -38,7 +35,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.GetPersonRequest"
+                                "$ref": "#/definitions/dto.GetPersonRequest"
                             }
                         }
                     }
@@ -63,7 +60,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 ],
@@ -100,7 +97,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GetPersonRequest"
+                            "$ref": "#/definitions/dto.GetPersonRequest"
                         }
                     }
                 }
@@ -131,7 +128,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 ],
@@ -139,7 +136,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 }
@@ -174,7 +171,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.Address": {
+        "dto.Address": {
             "type": "object",
             "required": [
                 "city",
@@ -205,7 +202,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.CreatePersonRequest": {
+        "dto.CreatePersonRequest": {
             "type": "object",
             "required": [
                 "address",
@@ -214,7 +211,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/controllers.Address"
+                    "$ref": "#/definitions/dto.Address"
                 },
                 "email": {
                     "type": "string"
@@ -224,11 +221,11 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.GetPersonRequest": {
+        "dto.GetPersonRequest": {
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/controllers.Address"
+                    "$ref": "#/definitions/dto.Address"
                 },
                 "email": {
                     "type": "string"
@@ -241,21 +238,17 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "externalDocs": {
-        "description": "OpenAPI",
-        "url": "http://localhost:8080/swagger/index.html"
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
-	BasePath:         "/api/v1",
+	Version:          "",
+	Host:             "",
+	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Crud Person API",
-	Description:      "This is a crud of person.",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

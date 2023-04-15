@@ -1,5 +1,6 @@
+basePath: /api/v1
 definitions:
-  dto.Address:
+  controllers.Address:
     properties:
       city:
         type: string
@@ -21,10 +22,10 @@ definitions:
     - street
     - zipcode
     type: object
-  dto.CreatePersonRequest:
+  controllers.CreatePersonRequest:
     properties:
       address:
-        $ref: '#/definitions/dto.Address'
+        $ref: '#/definitions/controllers.Address'
       email:
         type: string
       name:
@@ -34,10 +35,10 @@ definitions:
     - email
     - name
     type: object
-  dto.GetPersonRequest:
+  controllers.GetPersonRequest:
     properties:
       address:
-        $ref: '#/definitions/dto.Address'
+        $ref: '#/definitions/controllers.Address'
       email:
         type: string
       id:
@@ -45,8 +46,17 @@ definitions:
       name:
         type: string
     type: object
+externalDocs:
+  description: OpenAPI
+  url: http://localhost:8080/swagger/index.html
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: charlesrodrigo@gmail.com
+    name: Charles Rodrigo
+  description: This is a crud of person.
+  title: Crud Person API
+  version: "1.0"
 paths:
   /api/v1/person:
     get:
@@ -60,7 +70,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/dto.GetPersonRequest'
+              $ref: '#/definitions/controllers.GetPersonRequest'
             type: array
       summary: get all person
       tags:
@@ -75,7 +85,7 @@ paths:
         name: person
         required: true
         schema:
-          $ref: '#/definitions/dto.CreatePersonRequest'
+          $ref: '#/definitions/controllers.CreatePersonRequest'
       produces:
       - application/json
       responses:
@@ -119,7 +129,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.GetPersonRequest'
+            $ref: '#/definitions/controllers.GetPersonRequest'
       summary: get person
       tags:
       - person
@@ -138,14 +148,14 @@ paths:
         name: person
         required: true
         schema:
-          $ref: '#/definitions/dto.CreatePersonRequest'
+          $ref: '#/definitions/controllers.CreatePersonRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.CreatePersonRequest'
+            $ref: '#/definitions/controllers.CreatePersonRequest'
       summary: update person
       tags:
       - person

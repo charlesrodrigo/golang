@@ -1,8 +1,16 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "This is a crud of person.",
+        "title": "Crud Person API",
+        "contact": {
+            "name": "Charles Rodrigo",
+            "email": "charlesrodrigo@gmail.com"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/api/v1",
     "paths": {
         "/api/v1/person": {
             "get": {
@@ -23,7 +31,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/dto.GetPersonRequest"
+                                "$ref": "#/definitions/controllers.GetPersonRequest"
                             }
                         }
                     }
@@ -48,7 +56,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePersonRequest"
+                            "$ref": "#/definitions/controllers.CreatePersonRequest"
                         }
                     }
                 ],
@@ -85,7 +93,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.GetPersonRequest"
+                            "$ref": "#/definitions/controllers.GetPersonRequest"
                         }
                     }
                 }
@@ -116,7 +124,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePersonRequest"
+                            "$ref": "#/definitions/controllers.CreatePersonRequest"
                         }
                     }
                 ],
@@ -124,7 +132,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.CreatePersonRequest"
+                            "$ref": "#/definitions/controllers.CreatePersonRequest"
                         }
                     }
                 }
@@ -159,7 +167,7 @@
         }
     },
     "definitions": {
-        "dto.Address": {
+        "controllers.Address": {
             "type": "object",
             "required": [
                 "city",
@@ -190,7 +198,7 @@
                 }
             }
         },
-        "dto.CreatePersonRequest": {
+        "controllers.CreatePersonRequest": {
             "type": "object",
             "required": [
                 "address",
@@ -199,7 +207,7 @@
             ],
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/dto.Address"
+                    "$ref": "#/definitions/controllers.Address"
                 },
                 "email": {
                     "type": "string"
@@ -209,11 +217,11 @@
                 }
             }
         },
-        "dto.GetPersonRequest": {
+        "controllers.GetPersonRequest": {
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/dto.Address"
+                    "$ref": "#/definitions/controllers.Address"
                 },
                 "email": {
                     "type": "string"
@@ -226,5 +234,9 @@
                 }
             }
         }
+    },
+    "externalDocs": {
+        "description": "OpenAPI",
+        "url": "http://localhost:8080/swagger/index.html"
     }
 }

@@ -1,6 +1,6 @@
 package dto
 
-import "br.com.charlesrodrigo/ms-person/model"
+import "br.com.charlesrodrigo/ms-person/internal/model"
 
 type Address struct {
 	Zipcode      string `json:"zipcode" binding:"required"`

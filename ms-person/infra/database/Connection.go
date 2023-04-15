@@ -1,4 +1,4 @@
-package config
+package database
 
 import (
 	"context"
@@ -13,7 +13,7 @@ const (
 	database = "testing"
 )
 
-func DatabaseConnection() *mongo.Database {
+func GetConnection() *mongo.Database {
 	ctx := context.Background()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
