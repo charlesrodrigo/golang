@@ -31,7 +31,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.GetPersonRequest"
+                                "$ref": "#/definitions/dto.GetPersonRequest"
                             }
                         }
                     }
@@ -56,7 +56,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 ],
@@ -93,7 +93,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GetPersonRequest"
+                            "$ref": "#/definitions/dto.GetPersonRequest"
                         }
                     }
                 }
@@ -124,7 +124,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 ],
@@ -132,7 +132,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 }
@@ -167,7 +167,7 @@
         }
     },
     "definitions": {
-        "controllers.Address": {
+        "dto.Address": {
             "type": "object",
             "required": [
                 "city",
@@ -198,7 +198,7 @@
                 }
             }
         },
-        "controllers.CreatePersonRequest": {
+        "dto.CreatePersonRequest": {
             "type": "object",
             "required": [
                 "address",
@@ -207,7 +207,7 @@
             ],
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/controllers.Address"
+                    "$ref": "#/definitions/dto.Address"
                 },
                 "email": {
                     "type": "string"
@@ -217,11 +217,11 @@
                 }
             }
         },
-        "controllers.GetPersonRequest": {
+        "dto.GetPersonRequest": {
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/controllers.Address"
+                    "$ref": "#/definitions/dto.Address"
                 },
                 "email": {
                     "type": "string"

@@ -38,7 +38,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/controllers.GetPersonRequest"
+                                "$ref": "#/definitions/dto.GetPersonRequest"
                             }
                         }
                     }
@@ -63,7 +63,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 ],
@@ -100,7 +100,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.GetPersonRequest"
+                            "$ref": "#/definitions/dto.GetPersonRequest"
                         }
                     }
                 }
@@ -131,7 +131,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 ],
@@ -139,7 +139,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.CreatePersonRequest"
+                            "$ref": "#/definitions/dto.CreatePersonRequest"
                         }
                     }
                 }
@@ -174,7 +174,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controllers.Address": {
+        "dto.Address": {
             "type": "object",
             "required": [
                 "city",
@@ -205,7 +205,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.CreatePersonRequest": {
+        "dto.CreatePersonRequest": {
             "type": "object",
             "required": [
                 "address",
@@ -214,7 +214,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/controllers.Address"
+                    "$ref": "#/definitions/dto.Address"
                 },
                 "email": {
                     "type": "string"
@@ -224,11 +224,11 @@ const docTemplate = `{
                 }
             }
         },
-        "controllers.GetPersonRequest": {
+        "dto.GetPersonRequest": {
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/controllers.Address"
+                    "$ref": "#/definitions/dto.Address"
                 },
                 "email": {
                     "type": "string"

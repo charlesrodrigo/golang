@@ -1,12 +1,17 @@
 package api
 
 import (
-	"fmt"
+	"time"
 
 	"br.com.charlesrodrigo/ms-person/api/controllers"
 	"br.com.charlesrodrigo/ms-person/api/docs"
+	"br.com.charlesrodrigo/ms-person/helper/logger"
+
+	"br.com.charlesrodrigo/ms-person/api/handlers"
+
 	"br.com.charlesrodrigo/ms-person/infra/database"
 	"br.com.charlesrodrigo/ms-person/internal/service"
+	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -25,12 +30,14 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          http://localhost:8080/swagger/index.html
 func StartServerApi() {
-	db := database.GetConnection()
-	personRepository := database.NewPersonRepositoryImpl(db)
-	personService := service.NewPersonServiceImpl(personRepository)
-	personController := controllers.NewPersonController(personService)
+	configLogger := logger.Init()
+
+	personController := initDependenciesPersonController()
 
 	router := gin.Default()
+	router.Use(ginzap.Ginzap(configLogger, time.RFC3339, true))
+	router.Use(ginzap.RecoveryWithZap(configLogger, true))
+	router.Use(handlers.TimeoutMiddleware())
 
 	docs.SwaggerInfo.BasePath = "/"
 	v1 := router.Group("/api/v1")
@@ -47,9 +54,16 @@ func StartServerApi() {
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	fmt.Println("Started Server! -> http://localhost:8080")
-	fmt.Println("Swagger! -> http://localhost:8080/swagger/index.html")
+	logger.Info("Started Server! -> http://localhost:8080 ")
+	logger.Info("Swagger! -> http://localhost:8080/swagger/index.html")
 
 	router.Run(":8080")
 
+}
+
+func initDependenciesPersonController() controllers.PersonController {
+	personRepository := database.NewPersonRepositoryImpl()
+	personService := service.NewPersonServiceImpl(personRepository)
+	personController := controllers.NewPersonController(personService)
+	return personController
 }

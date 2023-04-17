@@ -39,7 +39,12 @@ func (personController PersonController) CreatePerson(context *gin.Context) {
 
 	person := createPersonRequest.ParseDTOToModel()
 
-	personController.PersonService.Create(&person)
+	err := personController.PersonService.Create(context, &person)
+
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	context.JSON(http.StatusOK, "")
 }
@@ -75,7 +80,12 @@ func (personController PersonController) UpdatePerson(context *gin.Context) {
 	person := updatePersonRequest.ParseDTOToModel()
 	person.ID = objectId
 
-	personController.PersonService.Update(&person)
+	err = personController.PersonService.Update(context, &person)
+
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	context.JSON(http.StatusOK, person)
 }
@@ -95,7 +105,12 @@ func (personController PersonController) GetPerson(context *gin.Context) {
 
 	person := model.Person{}
 
-	person = personController.PersonService.FindById(context.Param("id"))
+	person, err := personController.PersonService.FindById(context, context.Param("id"))
+
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	if person.ID.IsZero() {
 		context.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Not found"})
@@ -120,7 +135,7 @@ func (personController PersonController) GetPerson(context *gin.Context) {
 // @Router /api/v1/person [get]
 func (personController PersonController) GetAllPerson(context *gin.Context) {
 
-	persons := personController.PersonService.FindAll()
+	persons := personController.PersonService.FindAll(context)
 
 	response := make([]dto.GetPersonRequest, 0)
 	for _, person := range persons {
@@ -147,7 +162,11 @@ func (personController PersonController) GetAllPerson(context *gin.Context) {
 // @Router /api/v1/person/{id} [delete]
 func (personController PersonController) DeletePerson(context *gin.Context) {
 
-	personController.PersonService.Delete(context.Param("id"))
+	err := personController.PersonService.Delete(context, context.Param("id"))
 
+	if err != nil {
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 	context.JSON(http.StatusOK, "")
 }

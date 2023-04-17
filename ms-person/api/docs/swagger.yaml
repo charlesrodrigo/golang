@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  controllers.Address:
+  dto.Address:
     properties:
       city:
         type: string
@@ -22,10 +22,10 @@ definitions:
     - street
     - zipcode
     type: object
-  controllers.CreatePersonRequest:
+  dto.CreatePersonRequest:
     properties:
       address:
-        $ref: '#/definitions/controllers.Address'
+        $ref: '#/definitions/dto.Address'
       email:
         type: string
       name:
@@ -35,10 +35,10 @@ definitions:
     - email
     - name
     type: object
-  controllers.GetPersonRequest:
+  dto.GetPersonRequest:
     properties:
       address:
-        $ref: '#/definitions/controllers.Address'
+        $ref: '#/definitions/dto.Address'
       email:
         type: string
       id:
@@ -70,7 +70,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/controllers.GetPersonRequest'
+              $ref: '#/definitions/dto.GetPersonRequest'
             type: array
       summary: get all person
       tags:
@@ -85,7 +85,7 @@ paths:
         name: person
         required: true
         schema:
-          $ref: '#/definitions/controllers.CreatePersonRequest'
+          $ref: '#/definitions/dto.CreatePersonRequest'
       produces:
       - application/json
       responses:
@@ -129,7 +129,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.GetPersonRequest'
+            $ref: '#/definitions/dto.GetPersonRequest'
       summary: get person
       tags:
       - person
@@ -148,14 +148,14 @@ paths:
         name: person
         required: true
         schema:
-          $ref: '#/definitions/controllers.CreatePersonRequest'
+          $ref: '#/definitions/dto.CreatePersonRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.CreatePersonRequest'
+            $ref: '#/definitions/dto.CreatePersonRequest'
       summary: update person
       tags:
       - person
