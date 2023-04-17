@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"br.com.charlesrodrigo/ms-person/api/dto"
+	"br.com.charlesrodrigo/ms-person/helper/function"
 	"br.com.charlesrodrigo/ms-person/internal/model"
 	"br.com.charlesrodrigo/ms-person/internal/service"
 	"github.com/gin-gonic/gin"
@@ -33,7 +34,7 @@ func NewPersonController(personService service.PersonService) PersonController {
 func (personController PersonController) CreatePerson(context *gin.Context) {
 	var createPersonRequest dto.CreatePersonRequest
 	if err := context.ShouldBindJSON(&createPersonRequest); err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -42,7 +43,7 @@ func (personController PersonController) CreatePerson(context *gin.Context) {
 	err := personController.PersonService.Create(context, &person)
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -64,7 +65,7 @@ func (personController PersonController) CreatePerson(context *gin.Context) {
 func (personController PersonController) UpdatePerson(context *gin.Context) {
 	var updatePersonRequest dto.CreatePersonRequest
 	if err := context.ShouldBindJSON(&updatePersonRequest); err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -73,7 +74,7 @@ func (personController PersonController) UpdatePerson(context *gin.Context) {
 	objectId, err := primitive.ObjectIDFromHex(context.Param("id"))
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -83,7 +84,7 @@ func (personController PersonController) UpdatePerson(context *gin.Context) {
 	err = personController.PersonService.Update(context, &person)
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
@@ -113,7 +114,7 @@ func (personController PersonController) GetPerson(context *gin.Context) {
 	}
 
 	if person.ID.IsZero() {
-		context.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "Not found"})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, "Not found"))
 		return
 	}
 
@@ -165,7 +166,7 @@ func (personController PersonController) DeletePerson(context *gin.Context) {
 	err := personController.PersonService.Delete(context, context.Param("id"))
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 	context.JSON(http.StatusOK, "")
