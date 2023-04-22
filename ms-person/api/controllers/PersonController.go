@@ -31,7 +31,7 @@ func NewPersonController(personService service.PersonService) PersonController {
 // @Produce json
 // @Success 200
 // @Router /api/v1/person [post]
-func (personController PersonController) CreatePerson(context *gin.Context) {
+func (pc PersonController) CreatePerson(context *gin.Context) {
 	var createPersonRequest dto.CreatePersonRequest
 	if err := context.ShouldBindJSON(&createPersonRequest); err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -40,7 +40,7 @@ func (personController PersonController) CreatePerson(context *gin.Context) {
 
 	person := createPersonRequest.ParseDTOToModel()
 
-	err := personController.PersonService.Create(context, &person)
+	err := pc.PersonService.Create(context, &person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -62,7 +62,7 @@ func (personController PersonController) CreatePerson(context *gin.Context) {
 // @Produce json
 // @Success      200  {object}  dto.CreatePersonRequest
 // @Router /api/v1/person/{id} [put]
-func (personController PersonController) UpdatePerson(context *gin.Context) {
+func (pc PersonController) UpdatePerson(context *gin.Context) {
 	var updatePersonRequest dto.CreatePersonRequest
 	if err := context.ShouldBindJSON(&updatePersonRequest); err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -81,7 +81,7 @@ func (personController PersonController) UpdatePerson(context *gin.Context) {
 	person := updatePersonRequest.ParseDTOToModel()
 	person.ID = objectId
 
-	err = personController.PersonService.Update(context, &person)
+	err = pc.PersonService.Update(context, &person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -102,26 +102,26 @@ func (personController PersonController) UpdatePerson(context *gin.Context) {
 // @Produce json
 // @Success      200  {object}  dto.GetPersonRequest
 // @Router /api/v1/person/{id} [get]
-func (personController PersonController) GetPerson(context *gin.Context) {
+func (pc PersonController) GetPerson(ctx *gin.Context) {
 
 	person := model.Person{}
 
-	person, err := personController.PersonService.FindById(context, context.Param("id"))
+	person, err := pc.PersonService.FindById(ctx, ctx.Param("id"))
 
 	if err != nil {
-		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if person.ID.IsZero() {
-		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, "Not found"))
+		ctx.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, "Not found"))
 		return
 	}
 
 	response := dto.GetPersonRequest{}
 	response.ParseModelToDTO(person)
 
-	context.JSON(http.StatusOK, response)
+	ctx.JSON(http.StatusOK, response)
 }
 
 // @BasePath /api/v1
@@ -134,9 +134,9 @@ func (personController PersonController) GetPerson(context *gin.Context) {
 // @Produce json
 // @Success      200  {object}  []dto.GetPersonRequest
 // @Router /api/v1/person [get]
-func (personController PersonController) GetAllPerson(context *gin.Context) {
+func (pc PersonController) GetAllPerson(context *gin.Context) {
 
-	persons := personController.PersonService.FindAll(context)
+	persons := pc.PersonService.FindAll(context)
 
 	response := make([]dto.GetPersonRequest, 0)
 	for _, person := range persons {
@@ -161,9 +161,9 @@ func (personController PersonController) GetAllPerson(context *gin.Context) {
 // @Produce json
 // @Success 200
 // @Router /api/v1/person/{id} [delete]
-func (personController PersonController) DeletePerson(context *gin.Context) {
+func (pc PersonController) DeletePerson(context *gin.Context) {
 
-	err := personController.PersonService.Delete(context, context.Param("id"))
+	err := pc.PersonService.Delete(context, context.Param("id"))
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))

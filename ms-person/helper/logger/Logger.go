@@ -5,19 +5,20 @@ import (
 	"strings"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var (
-	log *zap.SugaredLogger
+	sugar *zap.SugaredLogger
 )
 
 func Init() *zap.Logger {
 	logConfig := zap.Config{
 		OutputPaths: []string{getOutputLogs()},
 		Level:       zap.NewAtomicLevelAt(getLevelLogs()),
-		Encoding:    constants.LOG_TYPE,
+		Encoding:    os.Getenv(constants.LOG_TYPE),
 		EncoderConfig: zapcore.EncoderConfig{
 			LevelKey:     "level",
 			TimeKey:      "time",
@@ -28,30 +29,29 @@ func Init() *zap.Logger {
 		},
 	}
 
-	config, _ := logConfig.Build()
-	log = config.Sugar()
+	zap, _ := logConfig.Build()
 
-	return config
+	defer zap.Sync()
+
+	sugar = zap.Sugar()
+
+	return zap
 }
 
-func Info(message ...interface{}) {
-	log.Info(message)
-	log.Sync()
+func Info(message string, args ...interface{}) {
+	sugar.Infof(message, args)
 }
 
-func Error(message ...interface{}) {
-	log.Error(message)
-	log.Sync()
+func Error(message string, args ...interface{}) {
+	sugar.Errorf(message, args)
 }
 
-func Panic(message ...interface{}) {
-	log.Panic(message)
-	log.Sync()
+func Panic(message string, args ...interface{}) {
+	sugar.Panicf(message, args)
 }
 
-func Fatal(message ...interface{}) {
-	log.Fatal(message)
-	log.Sync()
+func Fatal(message string, args ...interface{}) {
+	sugar.Fatalf(message, args)
 }
 
 func getOutputLogs() string {

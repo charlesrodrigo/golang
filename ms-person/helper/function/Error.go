@@ -9,13 +9,13 @@ import (
 
 func IfErrorPanic(text string, err error) {
 	if err != nil {
-		logger.Panic(err)
+		logger.Panic(err.Error())
 	}
 }
 
 func IfErrorFatal(text string, err error) {
 	if err != nil {
-		logger.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 }
 

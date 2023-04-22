@@ -1,11 +1,16 @@
 package api
 
 import (
+	"context"
+	"os"
 	"time"
 
 	"br.com.charlesrodrigo/ms-person/api/controllers"
 	"br.com.charlesrodrigo/ms-person/api/docs"
+	"br.com.charlesrodrigo/ms-person/helper/constants"
 	"br.com.charlesrodrigo/ms-person/helper/logger"
+	"br.com.charlesrodrigo/ms-person/helper/tracer"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"br.com.charlesrodrigo/ms-person/api/handlers"
 
@@ -30,11 +35,19 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          http://localhost:8080/swagger/index.html
 func StartServerApi() {
+	appName := os.Getenv(constants.GET_SERVICE_NAME)
+
+	cleanup := tracer.Init()
+	defer cleanup(context.Background())
+
 	configLogger := logger.Init()
 
 	personController := initDependenciesPersonController()
 
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
+	router.Use(otelgin.Middleware(appName))
 	router.Use(ginzap.Ginzap(configLogger, time.RFC3339, true))
 	router.Use(ginzap.RecoveryWithZap(configLogger, true))
 	router.Use(handlers.TimeoutMiddleware())

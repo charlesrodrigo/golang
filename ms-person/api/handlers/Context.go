@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
+	"br.com.charlesrodrigo/ms-person/helper/function"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 )
@@ -19,5 +20,5 @@ func TimeoutMiddleware() gin.HandlerFunc {
 }
 
 func responseTimeout(c *gin.Context) {
-	c.String(http.StatusRequestTimeout, "timeout")
+	c.AbortWithStatusJSON(function.CreateResponseError(http.StatusRequestTimeout, "timeout"))
 }

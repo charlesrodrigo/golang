@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"os"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
 	"br.com.charlesrodrigo/ms-person/helper/function"
@@ -24,7 +25,7 @@ func getConnectionDb() *mongo.Database {
 
 	ctx, _ := context.WithTimeout(context.Background(), constants.TIMEOUT_CONTEXT)
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(constants.DATABASE_URI))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv(constants.DATABASE_URI)))
 
 	function.IfErrorFatal("Failed connect databae", err)
 
@@ -34,7 +35,7 @@ func getConnectionDb() *mongo.Database {
 
 	logger.Info("Connected database with successful")
 
-	connection = client.Database(constants.DATABASE_NAME)
+	connection = client.Database(os.Getenv(constants.DATABASE_NAME))
 
 	return connection
 }
