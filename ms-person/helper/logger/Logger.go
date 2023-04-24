@@ -14,7 +14,10 @@ var (
 	sugar *zap.SugaredLogger
 )
 
-func Init() *zap.Logger {
+func Init(appName string) *zap.Logger {
+	initialCustomFields := make(map[string]interface{})
+	initialCustomFields["service"] = appName
+
 	logConfig := zap.Config{
 		OutputPaths: []string{getOutputLogs()},
 		Level:       zap.NewAtomicLevelAt(getLevelLogs()),
@@ -27,15 +30,16 @@ func Init() *zap.Logger {
 			EncodeLevel:  zapcore.LowercaseLevelEncoder,
 			EncodeCaller: zapcore.ShortCallerEncoder,
 		},
+		InitialFields: initialCustomFields,
 	}
 
-	zap, _ := logConfig.Build()
+	zapLog, _ := logConfig.Build()
 
-	defer zap.Sync()
+	defer zapLog.Sync()
 
-	sugar = zap.Sugar()
+	sugar = zapLog.Sugar()
 
-	return zap
+	return zapLog
 }
 
 func Info(message string, args ...interface{}) {

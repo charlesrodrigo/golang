@@ -40,7 +40,7 @@ func (pc PersonController) CreatePerson(context *gin.Context) {
 
 	person := createPersonRequest.ParseDTOToModel()
 
-	err := pc.PersonService.Create(context, &person)
+	err := pc.PersonService.Create(&person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -81,7 +81,7 @@ func (pc PersonController) UpdatePerson(context *gin.Context) {
 	person := updatePersonRequest.ParseDTOToModel()
 	person.ID = objectId
 
-	err = pc.PersonService.Update(context, &person)
+	err = pc.PersonService.Update(&person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -106,7 +106,7 @@ func (pc PersonController) GetPerson(ctx *gin.Context) {
 
 	person := model.Person{}
 
-	person, err := pc.PersonService.FindById(ctx, ctx.Param("id"))
+	person, err := pc.PersonService.FindById(ctx.Param("id"))
 
 	if err != nil {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -136,7 +136,7 @@ func (pc PersonController) GetPerson(ctx *gin.Context) {
 // @Router /api/v1/person [get]
 func (pc PersonController) GetAllPerson(context *gin.Context) {
 
-	persons := pc.PersonService.FindAll(context)
+	persons := pc.PersonService.FindAll()
 
 	response := make([]dto.GetPersonRequest, 0)
 	for _, person := range persons {
@@ -163,7 +163,7 @@ func (pc PersonController) GetAllPerson(context *gin.Context) {
 // @Router /api/v1/person/{id} [delete]
 func (pc PersonController) DeletePerson(context *gin.Context) {
 
-	err := pc.PersonService.Delete(context, context.Param("id"))
+	err := pc.PersonService.Delete(context.Param("id"))
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))

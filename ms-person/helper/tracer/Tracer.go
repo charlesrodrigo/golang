@@ -49,7 +49,7 @@ func Init() func(context.Context) error {
 	)
 
 	if err != nil {
-		log.Printf("Could not set resources: %v", err)
+		log.Fatal(err)
 	}
 
 	provider := sdktrace.NewTracerProvider(
