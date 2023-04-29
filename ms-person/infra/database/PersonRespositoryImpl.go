@@ -15,9 +15,9 @@ import (
 )
 
 type PersonRepositoryImpl struct {
+	ctx        context.Context
 	Db         *mongo.Database
 	Collection *mongo.Collection
-	ctx        context.Context
 }
 
 func NewPersonRepositoryImpl(c context.Context) repository.PersonRepository {
