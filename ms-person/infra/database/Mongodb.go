@@ -2,10 +2,10 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
-	"br.com.charlesrodrigo/ms-person/helper/function"
 	"br.com.charlesrodrigo/ms-person/helper/logger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -27,11 +27,15 @@ func getConnectionDb() *mongo.Database {
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv(constants.DATABASE_URI)))
 
-	function.IfErrorFatal("Failed connect databae", err)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed connect database %s", err))
+	}
 
 	err = client.Ping(ctx, readpref.Primary())
 
-	function.IfErrorFatal("Failed connect databae", err)
+	if err != nil {
+		logger.Fatal(fmt.Sprintf("Failed connect database %s", err))
+	}
 
 	logger.Info("Connected database with successful")
 

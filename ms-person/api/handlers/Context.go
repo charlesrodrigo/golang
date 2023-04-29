@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"context"
+	"fmt"
 	"net/http"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
-	"br.com.charlesrodrigo/ms-person/helper/function"
 	"github.com/gin-contrib/timeout"
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,15 @@ func TimeoutMiddleware() gin.HandlerFunc {
 	)
 }
 
+func AddRequestIdInRequestContext() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if requestID := c.Writer.Header().Get(constants.REQUEST_ID); requestID != "" {
+			ctx := context.WithValue(c.Request.Context(), constants.REQUEST_ID, requestID)
+			c.Request = c.Request.WithContext(ctx)
+		}
+	}
+}
+
 func responseTimeout(c *gin.Context) {
-	c.AbortWithStatusJSON(function.CreateResponseError(http.StatusRequestTimeout, "timeout"))
+	c.AbortWithError(http.StatusRequestTimeout, fmt.Errorf("Request Timeout"))
 }

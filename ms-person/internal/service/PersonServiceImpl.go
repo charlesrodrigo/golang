@@ -8,38 +8,36 @@ import (
 )
 
 type PersonServiceImpl struct {
-	ctx              context.Context
 	PersonRepository repository.PersonRepository
 }
 
-func NewPersonServiceImpl(c context.Context, personRepository repository.PersonRepository) PersonService {
+func NewPersonServiceImpl(personRepository repository.PersonRepository) PersonService {
 	return &PersonServiceImpl{
-		ctx:              c,
 		PersonRepository: personRepository,
 	}
 }
 
 // Create implements PersonService
-func (p *PersonServiceImpl) Create(person *model.Person) error {
-	return p.PersonRepository.Create(person)
+func (p *PersonServiceImpl) Create(ctx context.Context, person *model.Person) error {
+	return p.PersonRepository.Create(ctx, person)
 }
 
 // Update implements PersonService
-func (p *PersonServiceImpl) Update(person *model.Person) error {
-	return p.PersonRepository.Update(person)
+func (p *PersonServiceImpl) Update(ctx context.Context, person *model.Person) error {
+	return p.PersonRepository.Update(ctx, person)
 }
 
 // Delete implements PersonService
-func (p *PersonServiceImpl) Delete(id string) error {
-	return p.PersonRepository.Delete(id)
+func (p *PersonServiceImpl) Delete(ctx context.Context, id string) error {
+	return p.PersonRepository.Delete(ctx, id)
 }
 
 // FindById implements PersonService
-func (p *PersonServiceImpl) FindById(id string) (model.Person, error) {
-	return p.PersonRepository.FindById(id)
+func (p *PersonServiceImpl) FindById(ctx context.Context, id string) (model.Person, error) {
+	return p.PersonRepository.FindById(ctx, id)
 }
 
 // FindAll implements PersonService
-func (p *PersonServiceImpl) FindAll() []model.Person {
-	return p.PersonRepository.FindAll()
+func (p *PersonServiceImpl) FindAll(ctx context.Context) []model.Person {
+	return p.PersonRepository.FindAll(ctx)
 }

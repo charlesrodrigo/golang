@@ -1,11 +1,11 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 
 	"br.com.charlesrodrigo/ms-person/api/dto"
 	"br.com.charlesrodrigo/ms-person/helper/function"
+	"br.com.charlesrodrigo/ms-person/infra/database"
 	"br.com.charlesrodrigo/ms-person/internal/model"
 	"br.com.charlesrodrigo/ms-person/internal/service"
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,26 @@ type PersonController struct {
 	PersonService service.PersonService
 }
 
-func NewPersonController(personService service.PersonService) PersonController {
+func NewApiPersonController(router *gin.Engine) {
+	personRepository := database.NewPersonRepositoryImpl()
+	personService := service.NewPersonServiceImpl(personRepository)
+	personController := newPersonController(personService)
+
+	v1 := router.Group("/api/v1")
+	{
+		personGroup := v1.Group("/person")
+
+		{
+			personGroup.POST("/", personController.CreatePerson)
+			personGroup.PUT("/:id", personController.UpdatePerson)
+			personGroup.GET("/:id", personController.GetPerson)
+			personGroup.GET("/", personController.GetAllPerson)
+			personGroup.DELETE("/:id", personController.DeletePerson)
+		}
+	}
+}
+
+func newPersonController(personService service.PersonService) PersonController {
 	return PersonController{PersonService: personService}
 }
 
@@ -32,6 +51,8 @@ func NewPersonController(personService service.PersonService) PersonController {
 // @Success 200
 // @Router /api/v1/person [post]
 func (pc PersonController) CreatePerson(context *gin.Context) {
+	ctx := context.Request.Context()
+
 	var createPersonRequest dto.CreatePersonRequest
 	if err := context.ShouldBindJSON(&createPersonRequest); err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -40,7 +61,7 @@ func (pc PersonController) CreatePerson(context *gin.Context) {
 
 	person := createPersonRequest.ParseDTOToModel()
 
-	err := pc.PersonService.Create(&person)
+	err := pc.PersonService.Create(ctx, &person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -63,13 +84,12 @@ func (pc PersonController) CreatePerson(context *gin.Context) {
 // @Success      200  {object}  dto.CreatePersonRequest
 // @Router /api/v1/person/{id} [put]
 func (pc PersonController) UpdatePerson(context *gin.Context) {
+	ctx := context.Request.Context()
 	var updatePersonRequest dto.CreatePersonRequest
 	if err := context.ShouldBindJSON(&updatePersonRequest); err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
-
-	log.Println(context.Param("id"))
 
 	objectId, err := primitive.ObjectIDFromHex(context.Param("id"))
 
@@ -81,7 +101,7 @@ func (pc PersonController) UpdatePerson(context *gin.Context) {
 	person := updatePersonRequest.ParseDTOToModel()
 	person.ID = objectId
 
-	err = pc.PersonService.Update(&person)
+	err = pc.PersonService.Update(ctx, &person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
@@ -102,26 +122,26 @@ func (pc PersonController) UpdatePerson(context *gin.Context) {
 // @Produce json
 // @Success      200  {object}  dto.GetPersonRequest
 // @Router /api/v1/person/{id} [get]
-func (pc PersonController) GetPerson(ctx *gin.Context) {
-
+func (pc PersonController) GetPerson(context *gin.Context) {
+	ctx := context.Request.Context()
 	person := model.Person{}
 
-	person, err := pc.PersonService.FindById(ctx.Param("id"))
+	person, err := pc.PersonService.FindById(ctx, context.Param("id"))
 
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		context.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	if person.ID.IsZero() {
-		ctx.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, "Not found"))
+		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, "Not found"))
 		return
 	}
 
 	response := dto.GetPersonRequest{}
 	response.ParseModelToDTO(person)
 
-	ctx.JSON(http.StatusOK, response)
+	context.JSON(http.StatusOK, response)
 }
 
 // @BasePath /api/v1
@@ -135,8 +155,8 @@ func (pc PersonController) GetPerson(ctx *gin.Context) {
 // @Success      200  {object}  []dto.GetPersonRequest
 // @Router /api/v1/person [get]
 func (pc PersonController) GetAllPerson(context *gin.Context) {
-
-	persons := pc.PersonService.FindAll()
+	ctx := context.Request.Context()
+	persons := pc.PersonService.FindAll(ctx)
 
 	response := make([]dto.GetPersonRequest, 0)
 	for _, person := range persons {
@@ -162,8 +182,8 @@ func (pc PersonController) GetAllPerson(context *gin.Context) {
 // @Success 200
 // @Router /api/v1/person/{id} [delete]
 func (pc PersonController) DeletePerson(context *gin.Context) {
-
-	err := pc.PersonService.Delete(context.Param("id"))
+	ctx := context.Request.Context()
+	err := pc.PersonService.Delete(ctx, context.Param("id"))
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))

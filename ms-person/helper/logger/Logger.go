@@ -1,17 +1,21 @@
 package logger
 
 import (
+	"context"
+	"fmt"
 	"os"
 	"strings"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 var (
-	sugar *zap.SugaredLogger
+	zapLog *zap.Logger
 )
 
 func Init(appName string) *zap.Logger {
@@ -36,26 +40,70 @@ func Init(appName string) *zap.Logger {
 	zapLog, _ := logConfig.Build()
 
 	defer zapLog.Sync()
-
-	sugar = zapLog.Sugar()
-
 	return zapLog
 }
 
-func Info(message string, args ...interface{}) {
-	sugar.Infof(message, args)
+func addTrace(c context.Context, message string, args ...interface{}) (fields []zap.Field) {
+	span := trace.SpanFromContext(c)
+	args = append(args, constants.REQUEST_ID, c.Value(constants.REQUEST_ID))
+	args = append(args, "trace-ID", span.SpanContext().TraceID().String())
+	attrs := make([]attribute.KeyValue, 0)
+	fields = make([]zap.Field, 0)
+
+	if len(args)%2 == 0 {
+		for i, arg := range args {
+			if i%2 == 0 {
+				str := fmt.Sprintf("%v", arg)
+				value := fmt.Sprintf("%v", args[i+1])
+				key := attribute.Key(str)
+				attrs = append(attrs, key.String(value))
+				fields = append(fields, zap.String(str, value))
+			}
+		}
+	}
+
+	logMessageKey := attribute.Key("message")
+	attrs = append(attrs, logMessageKey.String(message))
+
+	span.AddEvent(zapcore.InfoLevel.String(), trace.WithAttributes(attrs...))
+
+	return
 }
 
-func Error(message string, args ...interface{}) {
-	sugar.Errorf(message, args)
+func Info(message string) {
+	zapLog.Info(message)
 }
 
-func Panic(message string, args ...interface{}) {
-	sugar.Panicf(message, args)
+func InfoWithContext(c context.Context, message string, args ...interface{}) {
+	fields := addTrace(c, message, args...)
+	zapLog.Info(message, fields...)
 }
 
-func Fatal(message string, args ...interface{}) {
-	sugar.Fatalf(message, args)
+func ErrorWithContext(c context.Context, message string, args ...interface{}) {
+	fields := addTrace(c, message, args...)
+	zapLog.Error(message, fields...)
+}
+
+func PanicWithContext(c context.Context, message string, args ...interface{}) {
+	fields := addTrace(c, message, args...)
+	zapLog.Panic(message, fields...)
+}
+
+func FatalWithContext(c context.Context, message string, args ...interface{}) {
+	fields := addTrace(c, message, args...)
+	zapLog.Fatal(message, fields...)
+}
+
+func Error(message string) {
+	zapLog.Error(message)
+}
+
+func Panic(message string) {
+	zapLog.Panic(message)
+}
+
+func Fatal(message string) {
+	zapLog.Fatal(message)
 }
 
 func getOutputLogs() string {

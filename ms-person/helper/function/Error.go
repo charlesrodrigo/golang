@@ -3,21 +3,8 @@ package function
 import (
 	"strings"
 
-	"br.com.charlesrodrigo/ms-person/helper/logger"
 	"github.com/gin-gonic/gin"
 )
-
-func IfErrorPanic(text string, err error) {
-	if err != nil {
-		logger.Panic(err.Error())
-	}
-}
-
-func IfErrorFatal(text string, err error) {
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-}
 
 func CreateResponseError(codeError int, messages ...string) (int, interface{}) {
 	if len(messages) == 1 {

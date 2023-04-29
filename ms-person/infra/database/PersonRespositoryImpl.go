@@ -2,9 +2,8 @@ package database
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
-	"br.com.charlesrodrigo/ms-person/helper/function"
 	"br.com.charlesrodrigo/ms-person/helper/logger"
 	"br.com.charlesrodrigo/ms-person/internal/model"
 	"br.com.charlesrodrigo/ms-person/internal/repository"
@@ -14,91 +13,93 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+const NOT_FOUND_PERSON string = "Not found Person for update %s"
+
 type PersonRepositoryImpl struct {
-	ctx        context.Context
 	Db         *mongo.Database
 	Collection *mongo.Collection
 }
 
-func NewPersonRepositoryImpl(c context.Context) repository.PersonRepository {
+func NewPersonRepositoryImpl() repository.PersonRepository {
 	connection := getConnectionDb()
 	collection := connection.Collection("person")
 
-	return &PersonRepositoryImpl{ctx: c, Db: connection, Collection: collection}
+	return &PersonRepositoryImpl{Db: connection, Collection: collection}
 }
 
 // Save implements Person
-func (repo *PersonRepositoryImpl) Create(person *model.Person) (err error) {
+func (repo *PersonRepositoryImpl) Create(ctx context.Context, person *model.Person) (err error) {
 
-	result, err := repo.Collection.InsertOne(repo.ctx, person)
+	result, err := repo.Collection.InsertOne(ctx, person)
 
 	if err != nil {
-		logger.Error("Failed insert %s", err.Error())
+		logger.ErrorWithContext(ctx, fmt.Sprintf("Failed insert %s", err.Error()))
 		return
 	}
 
-	logger.Info("Inserted a single document: %s", result.InsertedID.(primitive.ObjectID).Hex())
+	logger.InfoWithContext(ctx, fmt.Sprintf("Inserted a single document: %s", result.InsertedID.(primitive.ObjectID).Hex()))
 
 	return
 }
 
 // Update implements Person
-func (repo *PersonRepositoryImpl) Update(person *model.Person) (err error) {
+func (repo *PersonRepositoryImpl) Update(ctx context.Context, person *model.Person) (err error) {
 
 	filter := bson.M{"_id": person.ID}
 	update := bson.M{"$set": person}
 
-	result, err := repo.Collection.UpdateOne(repo.ctx, filter, update)
+	result, err := repo.Collection.UpdateOne(ctx, filter, update)
 
 	if err != nil {
-		logger.Error("Failed Update %s", err.Error())
+		logger.ErrorWithContext(ctx, fmt.Sprintf("Failed Update %s", err.Error()))
 		return
 	}
 
 	if result.ModifiedCount == 0 {
-		err = errors.New("Not found document for update")
+		logger.ErrorWithContext(ctx, fmt.Sprintf(NOT_FOUND_PERSON, err.Error()))
+		err = fmt.Errorf(NOT_FOUND_PERSON, person.ID.Hex())
 		return
 	}
 
-	logger.Info("update a single document: %s", result.UpsertedID)
+	logger.InfoWithContext(ctx, fmt.Sprintf("Update a single document: %s", person.ID.Hex()))
 
 	return
 }
 
 // Delete implements Person
-func (repo *PersonRepositoryImpl) Delete(id string) (err error) {
+func (repo *PersonRepositoryImpl) Delete(ctx context.Context, id string) (err error) {
 	objectId, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		logger.Error("id user invalid: %s", err.Error())
+		logger.ErrorWithContext(ctx, fmt.Sprintf("id user invalid: %s", err.Error()))
 		return err
 	}
 
-	_, err = repo.Collection.DeleteOne(repo.ctx, bson.M{"_id": objectId})
+	_, err = repo.Collection.DeleteOne(ctx, bson.M{"_id": objectId})
 
 	if err != nil {
-		logger.Error("cannot delete user: %s", err.Error())
+		logger.ErrorWithContext(ctx, fmt.Sprintf("cannot delete user: %s", err.Error()))
 		return err
 	}
 
-	logger.Info("deleted a single document: %s", id)
+	logger.InfoWithContext(ctx, fmt.Sprintf("deleted a single document: %s", id))
 
 	return
 }
 
 // FindById implements Person
-func (repo *PersonRepositoryImpl) FindById(id string) (person model.Person, err error) {
+func (repo *PersonRepositoryImpl) FindById(ctx context.Context, id string) (person model.Person, err error) {
 
 	objectId, err := primitive.ObjectIDFromHex(id)
 
 	if err != nil {
-		logger.Error("Failed FindById %s", err.Error())
+		logger.ErrorWithContext(ctx, fmt.Sprintf("Failed FindById %s", err.Error()))
 		return model.Person{}, err
 	}
 
-	logger.Info("Find document by id: %s", id)
+	logger.InfoWithContext(ctx, "Find document by id", "id", id)
 
-	err = repo.Collection.FindOne(repo.ctx, bson.M{"_id": objectId}).Decode(&person)
+	err = repo.Collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&person)
 
 	if err != nil {
 		return
@@ -108,30 +109,32 @@ func (repo *PersonRepositoryImpl) FindById(id string) (person model.Person, err 
 }
 
 // FindAll implements Person
-func (repo *PersonRepositoryImpl) FindAll() []model.Person {
-	return repo.Find(&ListPersonParams{})
+func (repo *PersonRepositoryImpl) FindAll(ctx context.Context) []model.Person {
+	return repo.Find(ctx, &ListPersonParams{})
 }
 
-func (repo *PersonRepositoryImpl) Find(params *ListPersonParams) (persons []model.Person) {
+func (repo *PersonRepositoryImpl) Find(ctx context.Context, params *ListPersonParams) (persons []model.Person) {
 	opts := options.Find()
 	opts = withListPersonParams(opts, params)
 
-	cur, err := repo.Collection.Find(repo.ctx, bson.M{}, opts)
+	cur, err := repo.Collection.Find(ctx, bson.M{}, opts)
 
 	if err != nil {
 		return persons
 	}
 
-	defer cur.Close(repo.ctx)
+	defer cur.Close(ctx)
 
 	persons = make([]model.Person, 0)
 
-	for cur.Next(repo.ctx) {
+	for cur.Next(ctx) {
 		person := model.Person{}
 
 		err = cur.Decode(&person)
 
-		function.IfErrorPanic("Failed Find", err)
+		if err != nil {
+			logger.PanicWithContext(ctx, fmt.Sprintf("Failed Decode person %s", err.Error()))
+		}
 
 		persons = append(persons, person)
 	}
