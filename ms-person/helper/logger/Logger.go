@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	zapLog *zap.Logger
+	log *zap.Logger
 )
 
 func Init(appName string) *zap.Logger {
@@ -40,6 +40,9 @@ func Init(appName string) *zap.Logger {
 	zapLog, _ := logConfig.Build()
 
 	defer zapLog.Sync()
+
+	log = zapLog
+
 	return zapLog
 }
 
@@ -71,39 +74,39 @@ func addTrace(c context.Context, message string, args ...interface{}) (fields []
 }
 
 func Info(message string) {
-	zapLog.Info(message)
+	log.Info(message)
 }
 
 func InfoWithContext(c context.Context, message string, args ...interface{}) {
 	fields := addTrace(c, message, args...)
-	zapLog.Info(message, fields...)
+	log.Info(message, fields...)
 }
 
 func ErrorWithContext(c context.Context, message string, args ...interface{}) {
 	fields := addTrace(c, message, args...)
-	zapLog.Error(message, fields...)
+	log.Error(message, fields...)
 }
 
 func PanicWithContext(c context.Context, message string, args ...interface{}) {
 	fields := addTrace(c, message, args...)
-	zapLog.Panic(message, fields...)
+	log.Panic(message, fields...)
 }
 
 func FatalWithContext(c context.Context, message string, args ...interface{}) {
 	fields := addTrace(c, message, args...)
-	zapLog.Fatal(message, fields...)
+	log.Fatal(message, fields...)
 }
 
 func Error(message string) {
-	zapLog.Error(message)
+	log.Error(message)
 }
 
 func Panic(message string) {
-	zapLog.Panic(message)
+	log.Panic(message)
 }
 
 func Fatal(message string) {
-	zapLog.Fatal(message)
+	log.Fatal(message)
 }
 
 func getOutputLogs() string {
