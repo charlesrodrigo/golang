@@ -12,10 +12,10 @@ import (
 	"br.com.charlesrodrigo/ms-person/helper/tracer"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
+	"github.com/Depado/ginprom"
 	"github.com/gin-contrib/requestid"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -43,6 +43,14 @@ func StartServerApi() {
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
+	p := ginprom.New(
+		ginprom.Namespace("http"),
+		ginprom.Engine(router),
+		ginprom.Subsystem(os.Getenv(constants.METRIC_NAME)),
+		ginprom.Path("/metrics"),
+	)
+	router.Use(p.Instrument())
+
 	router.Use(requestid.New())
 	router.Use(handlers.AddRequestIdInRequestContext())
 	router.Use(otelgin.Middleware(appName))
@@ -54,7 +62,6 @@ func StartServerApi() {
 	controllers.NewApiPersonController(router)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	logger.Info("Started Server! -> http://localhost:8080")
 	logger.Info("Swagger! -> http://localhost:8080/swagger/index.html")

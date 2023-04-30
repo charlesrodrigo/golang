@@ -7,6 +7,7 @@ import (
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
 	"br.com.charlesrodrigo/ms-person/helper/logger"
+	mongoprom "github.com/globocom/mongo-go-prometheus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -15,6 +16,12 @@ import (
 var connection *mongo.Database
 
 func getConnectionDb() *mongo.Database {
+
+	monitor := mongoprom.NewCommandMonitor(
+		mongoprom.WithInstanceName(os.Getenv(constants.DATABASE_NAME)),
+		mongoprom.WithNamespace(os.Getenv(constants.METRIC_NAME)),
+		mongoprom.WithDurationBuckets([]float64{.001, .005, .01}),
+	)
 
 	logger.Info("Starting connect database")
 
@@ -25,7 +32,11 @@ func getConnectionDb() *mongo.Database {
 
 	ctx, _ := context.WithTimeout(context.Background(), constants.TIMEOUT_CONTEXT)
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(os.Getenv(constants.DATABASE_URI)))
+	opts := options.Client().
+		ApplyURI(os.Getenv(constants.DATABASE_URI)).
+		SetMonitor(monitor)
+
+	client, err := mongo.Connect(ctx, opts)
 
 	if err != nil {
 		logger.Fatal(fmt.Sprintf("Failed connect database %s", err))

@@ -1,8 +1,11 @@
 package constants
 
-import "time"
+import (
+	"time"
+)
 
 const GET_SERVICE_NAME string = "SERVICE_NAME"
+const METRIC_NAME string = "METRIC_NAME"
 const TIMEOUT_CONTEXT = 3 * time.Second
 const DATABASE_NAME string = "DATABASE_NAME"
 const DATABASE_URI string = "DATABASE_URI"

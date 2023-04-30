@@ -7,6 +7,7 @@ services:
     image: mongo
     ports:
       - '27017:27017'
+
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
