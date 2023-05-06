@@ -1,7 +1,7 @@
 # Repository for study and test microservice with Golang
 
 ## **ms-person**
-### Person microservice is golang crud rest api. This example contains metrics, healthcheck, logs, traces, swagger, database, prometheus, env
+### Microservice Person  is golang crud rest api. This example contains metrics, healthcheck, logs, traces, swagger, database, prometheus, env
 
 ### Run Requirements
 * Docker 17.6.x
