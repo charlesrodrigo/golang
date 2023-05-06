@@ -2,6 +2,8 @@ package api
 
 import (
 	"context"
+	"fmt"
+	"net/http"
 	"os"
 
 	"br.com.charlesrodrigo/ms-person/api/controllers"
@@ -10,6 +12,7 @@ import (
 	"br.com.charlesrodrigo/ms-person/helper/constants"
 	"br.com.charlesrodrigo/ms-person/helper/logger"
 	"br.com.charlesrodrigo/ms-person/helper/tracer"
+	"br.com.charlesrodrigo/ms-person/infra/database"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"github.com/Depado/ginprom"
@@ -62,10 +65,35 @@ func StartServerApi() {
 	controllers.NewApiPersonController(router)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	router.GET("/healthcheck", healthCheck)
 
 	logger.Info("Started Server! -> http://localhost:8080")
 	logger.Info("Swagger! -> http://localhost:8080/swagger/index.html")
 
 	router.Run(":8080")
+
+}
+
+func healthCheck(c *gin.Context) {
+	status := "OK"
+	dbHealth := "OK"
+
+	err := database.PingDataBase()
+
+	if err != nil {
+		dbHealth = "Error connect in database"
+		status = "Error"
+	}
+
+	health := map[string]interface{}{
+		"status": status,
+		"services": map[string]string{
+			"database": dbHealth,
+		},
+	}
+
+	fmt.Println(health)
+
+	c.JSON(http.StatusOK, health)
 
 }

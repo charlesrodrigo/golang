@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"br.com.charlesrodrigo/ms-person/helper/constants"
 	"br.com.charlesrodrigo/ms-person/helper/logger"
@@ -53,4 +54,10 @@ func getConnectionDb() *mongo.Database {
 	connection = client.Database(databaseName)
 
 	return connection
+}
+
+func PingDataBase() error {
+	ctx, _ := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	err := connection.Client().Ping(ctx, readpref.Primary())
+	return err
 }
