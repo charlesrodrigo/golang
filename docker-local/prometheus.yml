@@ -5,7 +5,7 @@ scrape_configs:
   - job_name: "prometheusJob"
     scrape_interval: 5s
     static_configs:
-      - targets: ["localhost:9090"] #Servidor prometheus
+      - targets: ["host.docker.internal:9090"] #Servidor prometheus
 
   - job_name: "ms-person"
     scrape_interval: 5s
@@ -17,4 +17,4 @@ scrape_configs:
     scrape_interval: 5s
     metrics_path: "/metrics" #path do jaeger
     static_configs:
-      - targets: ["jaeger:14269"] #jaeger
+      - targets: ["host.docker.internal:14269"] #jaeger

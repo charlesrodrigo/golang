@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+
+  ms-person:
+    build:
+      context: ../ms-person/
+    image: ms-person/v1
+    ports:
+      - 8080:8080
+    environment:
+      SERVICE_NAME: ms-person
+      METRIC_NAME: ms_person
+      OTEL_EXPORTER_JAEGER_ENDPOINT: jaeger:4317
+      GIN_MODE: release
+      DATABASE_NAME: "testing"
+      DATABASE_URI: "mongodb://mongo:27017"
+      LOG_OUTPUT: stdout
+      LOG_LEVEL: info
+      LOG_TYPE: json
