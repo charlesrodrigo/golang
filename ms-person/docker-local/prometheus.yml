@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+scrape_configs:
+  - job_name: "prometheusJob"
+    scrape_interval: 5s
+    static_configs:
+      - targets: ["localhost:9090"] #Servidor prometheus
+
+  - job_name: "ms-person"
+    scrape_interval: 5s
+    metrics_path: "/metrics" #path da aplicação
+    static_configs:
+      - targets: ["host.docker.internal:8080"] #Servidor da minha aplicação
+
+  - job_name: "jaeger"
+    scrape_interval: 5s
+    metrics_path: "/metrics" #path do jaeger
+    static_configs:
+      - targets: ["jaeger:14269"] #jaeger

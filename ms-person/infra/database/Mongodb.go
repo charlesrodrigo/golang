@@ -16,9 +16,11 @@ import (
 var connection *mongo.Database
 
 func getConnectionDb() *mongo.Database {
+	databaseName := os.Getenv(constants.DATABASE_NAME)
+	databaseURI := os.Getenv(constants.DATABASE_URI)
 
 	monitor := mongoprom.NewCommandMonitor(
-		mongoprom.WithInstanceName(os.Getenv(constants.DATABASE_NAME)),
+		mongoprom.WithInstanceName(databaseName),
 		mongoprom.WithNamespace(os.Getenv(constants.METRIC_NAME)),
 		mongoprom.WithDurationBuckets([]float64{.001, .005, .01}),
 	)
@@ -32,9 +34,7 @@ func getConnectionDb() *mongo.Database {
 
 	ctx, _ := context.WithTimeout(context.Background(), constants.TIMEOUT_CONTEXT)
 
-	opts := options.Client().
-		ApplyURI(os.Getenv(constants.DATABASE_URI)).
-		SetMonitor(monitor)
+	opts := options.Client().ApplyURI(databaseURI).SetMonitor(monitor)
 
 	client, err := mongo.Connect(ctx, opts)
 
@@ -50,7 +50,7 @@ func getConnectionDb() *mongo.Database {
 
 	logger.Info("Connected database with successful")
 
-	connection = client.Database(os.Getenv(constants.DATABASE_NAME))
+	connection = client.Database(databaseName)
 
 	return connection
 }
