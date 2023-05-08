@@ -13,8 +13,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const NOT_FOUND_PERSON string = "Not found Person for update %s"
-
 type PersonRepositoryImpl struct {
 	Db         *mongo.Database
 	Collection *mongo.Collection
@@ -28,18 +26,28 @@ func NewPersonRepositoryImpl() repository.PersonRepository {
 }
 
 // Save implements Person
-func (repo *PersonRepositoryImpl) Create(ctx context.Context, person *model.Person) (err error) {
+func (repo *PersonRepositoryImpl) Create(ctx context.Context, person *model.Person) (string, error) {
 
 	result, err := repo.Collection.InsertOne(ctx, person)
 
 	if err != nil {
 		logger.ErrorWithContext(ctx, fmt.Sprintf("Failed insert %s", err.Error()))
-		return
+		return "", err
 	}
 
 	logger.InfoWithContext(ctx, fmt.Sprintf("Inserted a single document: %s", result.InsertedID.(primitive.ObjectID).Hex()))
 
-	return
+	objectID, ok := result.InsertedID.(primitive.ObjectID)
+	if !ok {
+		return "", fmt.Errorf("failed to convert InsertedID to ObjectID")
+	}
+
+	if objectID.IsZero() {
+		return "", mongo.ErrNilDocument
+	}
+
+	return objectID.Hex(), nil
+
 }
 
 // Update implements Person
@@ -51,14 +59,11 @@ func (repo *PersonRepositoryImpl) Update(ctx context.Context, person *model.Pers
 	result, err := repo.Collection.UpdateOne(ctx, filter, update)
 
 	if err != nil {
-		logger.ErrorWithContext(ctx, fmt.Sprintf("Failed Update %s", err.Error()))
 		return
 	}
 
 	if result.ModifiedCount == 0 {
-		logger.ErrorWithContext(ctx, fmt.Sprintf(NOT_FOUND_PERSON, err.Error()))
-		err = fmt.Errorf(NOT_FOUND_PERSON, person.ID.Hex())
-		return
+		return fmt.Errorf("Not found Person for update %s", person.ID.Hex())
 	}
 
 	logger.InfoWithContext(ctx, fmt.Sprintf("Update a single document: %s", person.ID.Hex()))
@@ -75,11 +80,15 @@ func (repo *PersonRepositoryImpl) Delete(ctx context.Context, id string) (err er
 		return err
 	}
 
-	_, err = repo.Collection.DeleteOne(ctx, bson.M{"_id": objectId})
+	result, err := repo.Collection.DeleteOne(ctx, bson.M{"_id": objectId})
 
 	if err != nil {
 		logger.ErrorWithContext(ctx, fmt.Sprintf("cannot delete user: %s", err.Error()))
 		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("Not found Person for delete %s", id)
 	}
 
 	logger.InfoWithContext(ctx, fmt.Sprintf("deleted a single document: %s", id))
@@ -102,6 +111,9 @@ func (repo *PersonRepositoryImpl) FindById(ctx context.Context, id string) (pers
 	err = repo.Collection.FindOne(ctx, bson.M{"_id": objectId}).Decode(&person)
 
 	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.Person{}, fmt.Errorf("Not found Person for id %s", id)
+		}
 		return
 	}
 

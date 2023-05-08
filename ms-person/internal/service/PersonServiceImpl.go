@@ -18,7 +18,7 @@ func NewPersonServiceImpl(personRepository repository.PersonRepository) PersonSe
 }
 
 // Create implements PersonService
-func (p *PersonServiceImpl) Create(ctx context.Context, person *model.Person) error {
+func (p *PersonServiceImpl) Create(ctx context.Context, person *model.Person) (string, error) {
 	return p.PersonRepository.Create(ctx, person)
 }
 

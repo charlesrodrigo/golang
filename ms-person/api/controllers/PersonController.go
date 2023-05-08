@@ -5,6 +5,7 @@ import (
 
 	"br.com.charlesrodrigo/ms-person/api/dto"
 	"br.com.charlesrodrigo/ms-person/helper/function"
+	"br.com.charlesrodrigo/ms-person/helper/logger"
 	"br.com.charlesrodrigo/ms-person/infra/database"
 	"br.com.charlesrodrigo/ms-person/internal/model"
 	"br.com.charlesrodrigo/ms-person/internal/service"
@@ -61,14 +62,18 @@ func (pc PersonController) CreatePerson(context *gin.Context) {
 
 	person := createPersonRequest.ParseDTOToModel()
 
-	err := pc.PersonService.Create(ctx, &person)
+	id, err := pc.PersonService.Create(ctx, &person)
 
 	if err != nil {
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	context.JSON(http.StatusOK, "")
+	resp := map[string]interface{}{
+		"id": id,
+	}
+
+	context.JSON(http.StatusOK, resp)
 }
 
 // @BasePath /api/v1
@@ -81,7 +86,7 @@ func (pc PersonController) CreatePerson(context *gin.Context) {
 // @Param id path string true "id person"
 // @Param person body dto.CreatePersonRequest true "Person Data"
 // @Produce json
-// @Success      200  {object}  dto.CreatePersonRequest
+// @Success      200  {object}  dto.GetPersonRequest
 // @Router /api/v1/person/{id} [put]
 func (pc PersonController) UpdatePerson(context *gin.Context) {
 	ctx := context.Request.Context()
@@ -103,12 +108,16 @@ func (pc PersonController) UpdatePerson(context *gin.Context) {
 
 	err = pc.PersonService.Update(ctx, &person)
 
+	response := dto.GetPersonRequest{}
+	response.ParseModelToDTO(person)
+
 	if err != nil {
+		logger.ErrorWithContext(context.Request.Context(), err.Error())
 		context.AbortWithStatusJSON(function.CreateResponseError(http.StatusBadRequest, err.Error()))
 		return
 	}
 
-	context.JSON(http.StatusOK, person)
+	context.JSON(http.StatusOK, response)
 }
 
 // @BasePath /api/v1

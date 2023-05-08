@@ -7,7 +7,7 @@ import (
 )
 
 type PersonRepository interface {
-	Create(ctx context.Context, person *model.Person) error
+	Create(ctx context.Context, person *model.Person) (string, error)
 	Update(ctx context.Context, person *model.Person) error
 	Delete(ctx context.Context, id string) error
 	FindById(context context.Context, id string) (model.Person, error)
